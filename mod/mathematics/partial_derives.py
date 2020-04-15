@@ -98,9 +98,10 @@ class NumPartialDerives(object):
 	"""采用摄动法计算函数func对输入x各维度上的偏导数"""
 	
 	def __init__(self, func, x0: np.ndarray):
+		assert type(func(x0)) == np.ndarray
 		self.func = func
-		self.x0 = x0.flatten()          # 输入为一维向量
-		self.y0 = func(x0).flatten()    # 输出为一维向量
+		self.x0: np.ndarray = x0.flatten()          # 输入为一维向量
+		self.y0: np.ndarray = func(x0).flatten()    # 输出为一维向量
 		self.eps = 1e-6
 		self.x_dim = len(self.x0)
 		
