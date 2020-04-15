@@ -8,7 +8,7 @@ Created on 2020/4/14 18:17
 
 @Email: dreisteine262@163.com
 
-@Describe: 一维函数线性寻优
+@Describe: 一维函数线性优化（Linear Search）
 """
 
 import logging
@@ -41,7 +41,7 @@ class LinearSearchOptim(object):
 			raise ValueError('x0 is not np.ndarray')
 		
 		self.func = func
-		self.x0 = np.array(x0, dtype = np.float64)
+		self.x0 = np.array(x0, dtype = np.float64).flatten()
 		self.max_iter = max_iter
 		self.tol_x = tol_x
 	
