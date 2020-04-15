@@ -8,7 +8,7 @@ Created on 2020/3/12 11:16
 
 @Email: dreisteine262@163.com
 
-@Describe: 计算函数偏导数
+@Describe: 计算函数偏导数, 支持符号运算SymPartialDerives和数值摄动求解NumPartialDerives两种方式
 """
 
 import numpy as np
@@ -110,7 +110,7 @@ class NumPartialDerives(object):
 		:param func: function, 待计算函数
 		:param x: np.ndarray, 扰动时x的位置
 		:param pert_loc: int, 扰动的维数
-		:param kind: str, 扰动类型, must be in {'relative', 'abs'}
+		:param kind: str, 数值扰动类型, must be in {'relative', 'abs'}
 		"""
 		x = np.array(x).flatten()
 		delta_x = np.zeros_like(x).astype(np.float64)
@@ -125,9 +125,11 @@ class NumPartialDerives(object):
 		
 		return x_pert, y_pert, delta_x
 	
-	def _cal_jacobian(self, func, x: np.ndarray, **kwargs):
+	def _cal_jacobian(self, func, x: np.ndarray, **kwargs) -> np.ndarray:
 		"""
-		求解任意x处的Jacobian矩阵
+		求解函数func在任意x处的Jacobian矩阵
+		:param func: func, 函数
+		:param x: np.ndarray, 输入数组
 		:param kwargs:
 			kind: str, 参见self._perturb
 		"""
@@ -145,34 +147,65 @@ class NumPartialDerives(object):
 		return jacobian
 	
 	def solve_jacobian_matrix(self, **kwargs) -> np.ndarray:
-		"""求解x0处的Jacobian矩阵"""
+		"""
+		求解x0处的Jacobian矩阵
+		:param kwargs:
+			kind: str, 参见self._perturb
+			
+		Notes:
+		------------
+		*   Jacobian = [
+				pf0 / px0, pf0 /px1, ..., pf0 / pxn,
+							...
+				pfm / px0, pfm /px1, ..., pfm / pxn,
+			]
+		*	Jacobian.shape = (m + 1, n + 1)
+		"""
 		jacobian = self._cal_jacobian(self.func, self.x0, **kwargs)
 		return jacobian
 	
-	def solve_hessian_matrix(self, **kwargs):
-		"""求解Hessian矩阵"""
-		# TODO: 以下求解代码有误.
-		hessian = None
-		cal_jacobian_ = lambda x: self._cal_jacobian(self.func, x, **kwargs)
-		for dim in range(self.x_dim):
-			_, y_pert, delta_x = self._perturb(cal_jacobian_, self.x0, dim, **kwargs)
-			dy_dx = ((y_pert - self.y0) / delta_x[dim]).reshape(1, -1)
-			
-			if hessian is None:
-				hessian = dy_dx
-			else:
-				hessian = np.vstack((hessian, dy_dx))
-		return hessian
+	def solve_hessian_matrix(self, **kwargs) -> np.ndarray:
+		"""
+		求解x0处的Hessian矩阵:
+		:param kwargs:
+			kind: str, 参见self._perturb
+		
+		Notes:
+		------------
+		* f必须为标量函数
+		*   Hessian = [
+				p^2f / (px0 * px0), p^2f / (px0 * px1), ..., p^2f / (px0 * pxn),
+				p^2f / (px1 * px0), p^2f / (px1 * px1), ..., p^2f / (px1 * pxn),
+											...
+				p^2f / (pxn * px0), p^2f / (px1 * px1), ..., p^2f / (pxn * pxn),
+			]
+		*   Hessian.shape = (n + 1, n + 1)
+		"""
+		if len(self.y0) != 1:
+			raise RuntimeError('The output self.y0 is not one-dimensional, while Hessian requires an one-dim output func')
+		else:
+			cal_jacobian_ = lambda x: self._cal_jacobian(self.func, x, **kwargs)
+			jacob_0 = cal_jacobian_(self.x0).flatten()
+			hessian = None
+			for dim in range(self.x_dim):
+				_, jacob_pert, delta_x = self._perturb(cal_jacobian_, self.x0, dim, **kwargs)
+				djacob_dx = ((jacob_pert - jacob_0) / delta_x[dim]).reshape(1, -1)
+				
+				if hessian is None:
+					hessian = djacob_dx
+				else:
+					hessian = np.vstack((hessian, djacob_dx))
+			return hessian
 		
 		
 if __name__ == '__main__':
 	# # %% 测试SymPartialDerives.
-	# def f(x: list):
-	# 	y = 0.5 * x[1] - x[0] ** 2
-	# 	return y
-	# f_dim = 2
-	# self = SymPartialDerives(f, f_dim)
-	# x, pd_values = self.cal_partial_derive_values([1])
+	def f(x: list):
+		y = 0.5 * x[1] - x[0] ** 2
+		return y
+	f_dim = 2
+	self = SymPartialDerives(f, f_dim)
+	x, pd_values = self.cal_partial_derive_values([1])
 	
 	# %% 测试NumPartialDerives.
 	def f(x: list):
@@ -181,7 +214,7 @@ if __name__ == '__main__':
 	
 	self = NumPartialDerives(f, x0 = np.array([2, 2]))
 	jacobian = self.solve_jacobian_matrix()
-	# hessian = self.solve_hessian_matrix()
+	hessian = self.solve_hessian_matrix()
 
 
 
