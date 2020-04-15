@@ -56,6 +56,7 @@ if __name__ == '__main__':
 		y = x[1] - x[0] ** 3
 		return y
 	
+	
 	# 测试.
 	f_dim = 2
 	xps = [0.5, 2]
@@ -64,12 +65,14 @@ if __name__ == '__main__':
 	
 	# %% 画图验证.
 	import matplotlib.pyplot as plt
+	
 	x = np.arange(-3, 3 + 0.1, 0.1)
 	y = np.power(x, 3)
 	plt.figure(figsize = [8, 8])
-	plt.plot(x, y)
-	plt.scatter(xps[0], xps[1], s = 12)
-	plt.scatter(x_opt[0], x_opt[1], s = 12, c = 'black')
+	plt.plot(x, y, label = 'surface')
+	plt.scatter(xps[0], xps[1], s = 12, label = 'point')
+	plt.scatter(x_opt[0], x_opt[1], s = 12, c = 'black', label = 'closest point on the surface')
+	plt.legend(loc = 'upper left')
 	plt.xlim([-3, 3])
 	plt.ylim([-3, 3])
 	plt.xlabel('x')

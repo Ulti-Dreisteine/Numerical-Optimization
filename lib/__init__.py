@@ -19,7 +19,12 @@ import sys, os
 
 sys.path.append('../')
 
+from mod.config.config_loader import config
 from mod.mathematics.partial_derives import NumPartialDerives
+
+proj_dir, proj_cmap = config.proj_dir, config.proj_cmap
+
+__all__ = ['NumPartialDerives', 'proj_dir', 'proj_cmap']
 
 
 
