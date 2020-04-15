@@ -1,8 +1,16 @@
-# numerical-optimization
-数值优化算法
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+        inlineMath: [['$','$']]
+      }
+    });
+</script>
+<script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
 
+![cover_picture](/img/cover_picture.jpg)
 
-
+***
 ### 目录
 
 #### 解析算法
@@ -16,7 +24,6 @@
 * 粒子群算法（Particle Swarm Algorithm, PSO）<a href="#粒子群算法（Particle Swarm Optimization, PSO）">click</a>
 
 ***
-
 ### 算法背景
 
 求解（可能在一定条件下）使得$f(x)$取得最优值（一般是最小值）的$x$，即$x_{\rm opt}$，记为：
@@ -202,7 +209,6 @@ $$
 * 相关算法细节参见*lib.trust_region*
 
 ***
-
 ### 数值算法
 
 ##### 遗传算法（Genetic Algorithm, GA）
@@ -216,5 +222,5 @@ $$
 
 
 ***
-
 ### TODOs
+* 更新遗传算法和粒子群算法内容
